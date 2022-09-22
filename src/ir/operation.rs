@@ -76,9 +76,9 @@ impl<'c> Deref for Operation<'c> {
 // TODO Should we split context lifetimes? Or, is it transitively proven that
 // 'c > 'a?
 #[derive(Clone, Copy)]
-pub struct OperationRef<'a> {
+pub struct OperationRef<'c> {
     raw: MlirOperation,
-    _reference: PhantomData<&'a Operation<'a>>,
+    _reference: PhantomData<&'c Context>,
 }
 
 impl<'a> OperationRef<'a> {
@@ -98,7 +98,7 @@ impl<'a> OperationRef<'a> {
     }
 
     /// Gets a result at a position.
-    pub fn result(&self, position: usize) -> Result<result::ResultValue, Error> {
+    pub fn result(&self, position: usize) -> Result<result::ResultValue<'a>, Error> {
         unsafe {
             if position < self.result_count() as usize {
                 Ok(result::ResultValue::from_raw(mlirOperationGetResult(

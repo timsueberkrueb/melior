@@ -159,7 +159,7 @@ impl<'c> BlockRef<'c> {
     }
 
     /// Appends an operation.
-    pub fn append_operation(&self, operation: Operation) -> OperationRef {
+    pub fn append_operation(&self, operation: Operation) -> OperationRef<'c> {
         unsafe {
             let operation = operation.into_raw();
 
