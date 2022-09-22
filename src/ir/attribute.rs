@@ -1,8 +1,8 @@
-use super::{r#type, Type};
+use super::{r#type, Type, TypeLike};
 use crate::{
     context::{Context, ContextRef},
     string_ref::StringRef,
-    utility::print_callback,
+    utility::{print_callback, into_raw_array},
 };
 use mlir_sys::{
     mlirAttributeDump, mlirAttributeEqual, mlirAttributeGetContext, mlirAttributeGetNull,
@@ -12,7 +12,7 @@ use mlir_sys::{
     mlirAttributeIsAFloat, mlirAttributeIsAInteger, mlirAttributeIsAIntegerSet,
     mlirAttributeIsAOpaque, mlirAttributeIsAOpaqueElements, mlirAttributeIsASparseElements,
     mlirAttributeIsAString, mlirAttributeIsASymbolRef, mlirAttributeIsAType, mlirAttributeIsAUnit,
-    mlirAttributeParseGet, mlirAttributePrint, MlirAttribute,
+    mlirAttributeParseGet, mlirAttributePrint, MlirAttribute, mlirDenseElementsAttrInt32Get,
 };
 use std::{
     ffi::c_void,
@@ -42,6 +42,16 @@ impl<'c> Attribute<'c> {
     /// Creates a null attribute.
     pub fn null() -> Self {
         unsafe { Self::from_raw(mlirAttributeGetNull()) }
+    }
+
+    pub fn dense_elements_i32(r#type: Type, elements: &[i32]) -> Self {
+        unsafe {
+            Self::from_raw(mlirDenseElementsAttrInt32Get(
+                r#type.to_raw(),
+                elements.len() as isize,
+                into_raw_array(elements.iter().map(|i| *i).collect()),
+            ))
+        }
     }
 
     /// Gets a type.
